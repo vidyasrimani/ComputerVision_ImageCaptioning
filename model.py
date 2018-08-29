@@ -9,7 +9,7 @@ class EncoderCNN(nn.Module):
         resnet = models.resnet50(pretrained=True)
         for param in resnet.parameters():
             param.requires_grad_(False)
-
+        
         modules = list(resnet.children())[:-1]
         self.resnet = nn.Sequential(*modules)
         self.embed = nn.Linear(resnet.fc.in_features, embed_size)
@@ -19,16 +19,16 @@ class EncoderCNN(nn.Module):
         features = features.view(features.size(0), -1)
         features = self.embed(features)
         return features
-
+    
 
 class DecoderRNN(nn.Module):
-
+    
     def __init__(self, embed_size, hidden_size, vocab_size, num_layers=1):
         super(DecoderRNN, self).__init__()
         self.embed = nn.Embedding(vocab_size, embed_size)
         self.lstm = nn.LSTM(embed_size, hidden_size, num_layers=num_layers, batch_first=True)
         self.fc = nn.Linear(hidden_size, vocab_size)
-
+        
     def forward(self, features, captions):
         captions_trimmed = captions[..., :-1]
         embed = self.embed(captions_trimmed)
@@ -47,6 +47,6 @@ class DecoderRNN(nn.Module):
             ind = argmax[1].item()
             tokens.append(ind)
             inputs = self.embed(argmax[1].long()).unsqueeze(1)
-            if ind == 1:
+            if ind == 1: 
                 break
         return tokens
